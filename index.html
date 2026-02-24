@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Piano di Ammortamento Mutuo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0f;
+    --surface: #16161a;
+    --card: #1e1e24;
+    --border: #2a2a35;
+    --accent: #c9a84c;
+    --accent2: #e8c97a;
+    --text: #f0ede6;
+    --muted: #7a7a8a;
+    --green: #4caf82;
+    --red: #e07070;
+    --blue: #6a9fd8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Decorative background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -20%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, rgba(201,168,76,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    padding: 3rem 4rem 2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    z-index: 1;
+  }
+
+  header::after {
+    content: '§';
+    position: absolute;
+    right: 4rem;
+    top: 1.5rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 8rem;
+    color: rgba(201,168,76,0.05);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+  }
+  .logo h1 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1;
+  }
+  .logo h1 span { color: var(--accent); }
+  .logo p {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 0.4rem;
+  }
+
+  .main {
+    position: relative;
+    z-index: 1;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 3rem 4rem;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  /* FORM */
+  .form-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    position: sticky;
+    top: 2rem;
+  }
+
+  .form-panel h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    margin-bottom: 1.8rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field {
+    margin-bottom: 1.4rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  input, select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    padding: 0.65rem 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--accent);
+    background: rgba(201,168,76,0.04);
+  }
+
+  select option { background: #1e1e24; }
+
+  .input-unit {
+    position: relative;
+  }
+  .input-unit input { padding-right: 2.5rem; }
+  .input-unit span {
+    position: absolute;
+    right: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-size: 0.8rem;
+    pointer-events: none;
+  }
+
+  .btn-calc {
+    width: 100%;
+    background: var(--accent);
+    color: #0e0e0f;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-calc:hover { background: var(--accent2); }
+  .btn-calc:active { transform: scale(0.99); }
+
+  /* SUMMARY CARDS */
+  .results-panel { min-width: 0; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 2rem;
+    border: 1px solid var(--border);
+  }
+
+  .summary-card {
+    background: var(--card);
+    padding: 1.5rem 1.2rem;
+    text-align: center;
+  }
+
+  .summary-card .label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+
+  .summary-card .value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .summary-card .value.gold { color: var(--accent); }
+  .summary-card .value.green { color: var(--green); }
+  .summary-card .value.red { color: var(--red); }
+  .summary-card .value.blue { color: var(--blue); }
+
+  /* BAR */
+  .bar-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .bar-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+  }
+  .bar-track {
+    height: 6px;
+    background: var(--border);
+    display: flex;
+    overflow: hidden;
+  }
+  .bar-capital { background: var(--green); transition: width 0.6s ease; }
+  .bar-interest { background: var(--red); transition: width 0.6s ease; }
+  .bar-legend {
+    display: flex;
+    gap: 2rem;
+    margin-top: 0.7rem;
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+  .bar-legend span { display: flex; align-items: center; gap: 0.4rem; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+  /* TABLE */
+  .table-wrapper {
+    background: var(--card);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--accent);
+  }
+
+  .table-scroll {
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .table-scroll::-webkit-scrollbar { width: 4px; }
+  .table-scroll::-webkit-scrollbar-track { background: var(--surface); }
+  .table-scroll::-webkit-scrollbar-thumb { background: var(--accent); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    padding: 0.7rem 1rem;
+    text-align: right;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  thead th:first-child { text-align: center; }
+
+  tbody tr {
+    border-bottom: 1px solid rgba(42,42,53,0.5);
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: rgba(201,168,76,0.03); }
+  tbody tr:last-child { border-bottom: none; }
+
+  td {
+    padding: 0.65rem 1rem;
+    text-align: right;
+    white-space: nowrap;
+  }
+  td:first-child { text-align: center; color: var(--muted); }
+  td.capital { color: var(--green); }
+  td.interest { color: var(--red); }
+  td.residual { color: var(--blue); }
+  td.rata { color: var(--accent); font-weight: 500; }
+
+  /* YEAR SEPARATOR */
+  .year-row td {
+    background: rgba(201,168,76,0.06);
+    color: var(--accent);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.4rem 1rem;
+    border-top: 1px solid rgba(201,168,76,0.15);
+    text-align: left !important;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--muted);
+  }
+  .empty-state .icon {
+    font-size: 4rem;
+    font-family: 'Playfair Display', serif;
+    color: rgba(201,168,76,0.15);
+    line-height: 1;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .empty-state p {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* EXPORT btn */
+  .btn-export {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-export:hover { border-color: var(--accent); color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; padding: 2rem 1.5rem; }
+    header { padding: 2rem 1.5rem; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    header::after { display: none; }
+    .form-panel { position: static; }
+  }
+
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>Piano <span>Mutuo</span></h1>
+    <p>Calcolatore di Ammortamento</p>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- FORM -->
+  <div class="form-panel">
+    <h2>Parametri del Mutuo</h2>
+
+    <div class="field">
+      <label>Capitale Iniziale</label>
+      <div class="input-unit">
+        <input type="number" id="capitale" value="200000" min="1" step="1000">
+        <span>€</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Durata</label>
+      <div class="input-unit">
+        <input type="number" id="durata" value="20" min="1" max="50">
+        <span>anni</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Tasso Annuo Nominale</label>
+      <div class="input-unit">
+        <input type="number" id="tasso" value="3.5" min="0" step="0.01">
+        <span>%</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Periodicità Rata</label>
+      <select id="periodicita">
+        <option value="12">Mensile (12 rate/anno)</option>
+        <option value="4">Trimestrale (4 rate/anno)</option>
+        <option value="2">Semestrale (2 rate/anno)</option>
+        <option value="1">Annuale (1 rata/anno)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Tipologia Ammortamento</label>
+      <select id="tipologia">
+        <option value="francese">Francese — rata costante</option>
+        <option value="italiano">Italiano — quota capitale costante</option>
+        <option value="americano">Americano — bullet (interessi periodici)</option>
+      </select>
+    </div>
+
+    <button class="btn-calc" onclick="calcola()">Calcola Piano</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results-panel">
+
+    <div class="summary-grid" id="summary" style="display:none">
+      <div class="summary-card">
+        <span class="label">Rata</span>
+        <div class="value gold" id="s-rata">—</div>
+      </div>
+      <div class="summary-card">
+        <span class="label">Totale Interessi</span>
+        <div class="value red" id="s-interessi">—</div>
+      </div>
+      <div class="summary-card">
+        <span class="label">Totale Pagato</span>
+        <div class="value blue" id="s-totale">—</div>
+      </div>
+      <div class="summary-card">
+        <span class="label">N° Rate</span>
+        <div class="value green" id="s-nrate">—</div>
+      </div>
+    </div>
+
+    <div class="bar-section" id="bar-section" style="display:none">
+      <div class="bar-label">Composizione del rimborso</div>
+      <div class="bar-track">
+        <div class="bar-capital" id="bar-cap" style="width:0%"></div>
+        <div class="bar-interest" id="bar-int" style="width:0%"></div>
+      </div>
+      <div class="bar-legend">
+        <span><span class="dot" style="background:var(--green)"></span> Quota Capitale <strong id="pct-cap" style="color:var(--text)"></strong></span>
+        <span><span class="dot" style="background:var(--red)"></span> Quota Interessi <strong id="pct-int" style="color:var(--text)"></strong></span>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <div class="table-header">
+        <h3>Piano di Ammortamento</h3>
+        <button class="btn-export" onclick="exportCSV()" id="btn-export" style="display:none">↓ Esporta CSV</button>
+      </div>
+      <div class="table-scroll" id="table-container">
+        <div class="empty-state">
+          <span class="icon">ℳ</span>
+          <p>Inserisci i parametri e calcola il piano</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let pianoData = [];
+
+function fmt(n) {
+  return n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+
+function calcola() {
+  const C = parseFloat(document.getElementById('capitale').value);
+  const anni = parseInt(document.getElementById('durata').value);
+  const tassoAnnuo = parseFloat(document.getElementById('tasso').value) / 100;
+  const freq = parseInt(document.getElementById('periodicita').value);
+  const tipo = document.getElementById('tipologia').value;
+
+  if (isNaN(C) || isNaN(anni) || isNaN(tassoAnnuo) || C <= 0 || anni <= 0) return;
+
+  const n = anni * freq;
+  const i = tassoAnnuo / freq;
+
+  pianoData = [];
+  let totInteressi = 0;
+  let totCapitale = 0;
+
+  if (tipo === 'francese') {
+    // Rata costante
+    const rata = i === 0 ? C / n : C * i * Math.pow(1 + i, n) / (Math.pow(1 + i, n) - 1);
+    let residuo = C;
+    for (let k = 1; k <= n; k++) {
+      const qI = residuo * i;
+      const qC = rata - qI;
+      residuo -= qC;
+      if (Math.abs(residuo) < 0.005) residuo = 0;
+      totInteressi += qI;
+      totCapitale += qC;
+      pianoData.push({ n: k, rata, qC, qI, residuo: Math.max(0, residuo) });
+    }
+    showSummary(rata, totInteressi, totCapitale + totInteressi, n, tipo);
+  }
+  else if (tipo === 'italiano') {
+    // Quota capitale costante
+    const qC = C / n;
+    let residuo = C;
+    for (let k = 1; k <= n; k++) {
+      const qI = residuo * i;
+      const rata = qC + qI;
+      residuo -= qC;
+      if (Math.abs(residuo) < 0.005) residuo = 0;
+      totInteressi += qI;
+      totCapitale += qC;
+      pianoData.push({ n: k, rata, qC, qI, residuo: Math.max(0, residuo) });
+    }
+    // Prima rata per il summary
+    showSummary(pianoData[0].rata, totInteressi, totCapitale + totInteressi, n, tipo);
+  }
+  else if (tipo === 'americano') {
+    // Bullet: interessi periodici, rimborso capitale a scadenza
+    const qI = C * i;
+    for (let k = 1; k <= n; k++) {
+      const isLast = k === n;
+      const qC = isLast ? C : 0;
+      const rata = isLast ? C + qI : qI;
+      totInteressi += qI;
+      totCapitale += qC;
+      pianoData.push({ n: k, rata, qC, qI, residuo: isLast ? 0 : C });
+    }
+    showSummary(qI, totInteressi, C + totInteressi, n, tipo);
+  }
+
+  renderTable();
+}
+
+function showSummary(rata, totInteressi, totPagato, nrate, tipo) {
+  document.getElementById('summary').style.display = 'grid';
+  document.getElementById('bar-section').style.display = 'block';
+  document.getElementById('btn-export').style.display = 'inline-block';
+
+  const C = parseFloat(document.getElementById('capitale').value);
+  const labelRata = tipo === 'italiano' ? '1ª Rata' : tipo === 'americano' ? 'Rata Int.' : 'Rata';
+
+  document.getElementById('s-rata').textContent = fmt(rata);
+  document.getElementById('s-interessi').textContent = fmt(totInteressi);
+  document.getElementById('s-totale').textContent = fmt(totPagato);
+  document.getElementById('s-nrate').textContent = nrate;
+
+  const pctCap = (C / totPagato * 100).toFixed(1);
+  const pctInt = (totInteressi / totPagato * 100).toFixed(1);
+  document.getElementById('bar-cap').style.width = pctCap + '%';
+  document.getElementById('bar-int').style.width = pctInt + '%';
+  document.getElementById('pct-cap').textContent = pctCap + '%';
+  document.getElementById('pct-int').textContent = pctInt + '%';
+}
+
+function renderTable() {
+  const freq = parseInt(document.getElementById('periodicita').value);
+  const periodoLabel = { 12: 'Mese', 4: 'Trim.', 2: 'Sem.', 1: 'Anno' }[freq];
+  const annoLabel = { 12: 'Anno', 4: 'Anno', 2: 'Anno', 1: 'Anno' }[freq];
+
+  let html = `<table>
+    <thead>
+      <tr>
+        <th>${periodoLabel}</th>
+        <th>Rata</th>
+        <th>Quota Capitale</th>
+        <th>Quota Interessi</th>
+        <th>Debito Residuo</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  let currentYear = 0;
+  pianoData.forEach((row, idx) => {
+    const anno = Math.floor((row.n - 1) / freq) + 1;
+    if (anno !== currentYear) {
+      currentYear = anno;
+      const isFirst = row.n === 1 && freq > 1;
+      if (!isFirst || freq === 1) {
+        html += `<tr class="year-row"><td colspan="5">${annoLabel} ${anno}</td></tr>`;
+      }
+    }
+    html += `<tr>
+      <td>${row.n}</td>
+      <td class="rata">${fmt(row.rata)}</td>
+      <td class="capital">${fmt(row.qC)}</td>
+      <td class="interest">${fmt(row.qI)}</td>
+      <td class="residual">${fmt(row.residuo)}</td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+
+  const container = document.getElementById('table-container');
+  container.innerHTML = html;
+  container.classList.add('fade-in');
+  setTimeout(() => container.classList.remove('fade-in'), 400);
+}
+
+function exportCSV() {
+  const freq = parseInt(document.getElementById('periodicita').value);
+  const periodoLabel = { 12: 'Mese', 4: 'Trimestre', 2: 'Semestre', 1: 'Anno' }[freq];
+  let csv = `${periodoLabel};Rata (€);Quota Capitale (€);Quota Interessi (€);Debito Residuo (€)\n`;
+  pianoData.forEach(r => {
+    csv += `${r.n};${r.rata.toFixed(2)};${r.qC.toFixed(2)};${r.qI.toFixed(2)};${r.residuo.toFixed(2)}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'piano_ammortamento.csv';
+  a.click();
+}
+
+// Auto-calc on load
+calcola();
+</script>
+</body>
+</html>
